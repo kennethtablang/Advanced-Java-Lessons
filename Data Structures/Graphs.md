@@ -1,76 +1,65 @@
 # Graphs and Network Data Structures
-## Data Structures Subject — Discussion Notes
+## Data Structures Subject — Discussion Notes with Illustrations
 
 ## 1. Learning Objectives
 
 After studying this topic, students should be able to:
 
-1. Define a graph and explain its basic components.
+1. Define a graph and explain its components.
 2. Identify common types of graphs and networks.
-3. Represent a graph using an adjacency matrix, adjacency list, or edge list.
+3. Represent graphs using adjacency matrices, adjacency lists, and edge lists.
 4. Perform Breadth-First Search (BFS) and Depth-First Search (DFS).
-5. Explain common applications of graphs.
-6. Implement a graph carefully by following a set of rules and procedures.
+5. Explain common graph applications.
+6. Implement graph operations by following clear procedures and rules.
 
 ---
 
 ## 2. What Is a Graph?
 
-A **graph** is a non-linear data structure used to represent relationships or connections between objects.
+A **graph** is a non-linear data structure that represents relationships or connections between objects.
 
 A graph contains:
 
-- **Vertex (or node):** An object or location in the graph.
+- **Vertex (node):** An object, person, place, or device.
 - **Edge:** A connection between two vertices.
-- **Weight:** An optional value attached to an edge, such as distance, cost, or travel time.
-- **Path:** A sequence of connected vertices.
-- **Degree:** The number of edges connected to a vertex. In a directed graph, we distinguish *in-degree* (edges entering a vertex) and *out-degree* (edges leaving it).
+- **Weight:** An optional value associated with an edge, such as distance, time, or cost.
+- **Path:** A sequence of vertices connected by edges.
+- **Degree:** The number of edges connected to a vertex. For directed graphs, we distinguish **in-degree** and **out-degree**.
 
-Graphs are useful when information is about how things are connected, rather than simply arranged one after another.
+A graph is commonly written as:
 
-### Example: A small campus network
+\[
+G = (V, E)
+\]
 
-Imagine four locations on a campus:
+- \(V\) is the set of vertices.
+- \(E\) is the set of edges.
 
-- A — Gate
-- B — Registrar
-- C — Library
-- D — Laboratory
-
-Suppose the paths are:
-
-- A connects to B.
-- A connects to C.
-- B connects to D.
-- C connects to D.
-
-The graph can be drawn conceptually as:
+### Illustration 1: A simple graph
 
 ```text
-       B (Registrar)
-      / \
-A (Gate)  D (Laboratory)
-      \ /
-       C (Library)
+      (A)------(B)
+       |        |
+       |        |
+      (C)------(D)
 ```
 
-The diagram is only a visual representation. The actual graph is stored in a data structure, such as an adjacency list or adjacency matrix.
+Vertices: `V = {A, B, C, D}`
 
-### Basic graph notation
+Edges: `E = {(A,B), (A,C), (B,D), (C,D)}`
 
-A graph is often written as **G = (V, E)**:
+The graph describes four objects and the connections between them. The letters could represent campus locations, people, or computers.
 
-- **V** is the set of vertices.
-- **E** is the set of edges.
+### Example: Campus locations
 
-For the campus example:
+| Vertex | Location |
+|---|---|
+| A | Gate |
+| B | Registrar |
+| C | Library |
+| D | Laboratory |
 
-```text
-V = {A, B, C, D}
-E = {(A, B), (A, C), (B, D), (C, D)}
-```
-
-If edges have weights, the graph may also store a value for each edge, such as the distance between two campus buildings.
+In this example, A–B means that the Gate is connected to the Registrar. If the graph is undirected, the connection can be used in either direction.
 
 ---
 
@@ -78,86 +67,131 @@ If edges have weights, the graph may also store a value for each edge, such as t
 
 ### 3.1 Undirected graph
 
-An **undirected graph** has edges that work in both directions.
-
-Example: If A is connected to B, a person can travel from A to B and from B to A.
+An **undirected graph** has edges without a specified direction.
 
 ```text
-A ----- B
+(A) -------- (B)
 ```
 
-**Common use:** Two-way roads, mutual friendships, or two-way network links.
+The connection allows movement from A to B and from B to A.
+
+**Examples:** Two-way roads, mutual friendships, and two-way network links.
 
 ### 3.2 Directed graph
 
-A **directed graph** (or digraph) has edges with a direction.
+A **directed graph** has edges with arrows indicating direction.
 
 ```text
-A -----> B
+(A) --------> (B)
 ```
 
-This means the connection goes from A to B. It does not automatically mean B can go back to A.
+This represents a connection from A to B. It does not automatically mean B connects back to A.
 
-**Common use:** One-way streets, website links, task dependencies, or following relationships on social media.
+**Examples:** One-way streets, web links, and social media following relationships.
 
 ### 3.3 Weighted graph
 
-A **weighted graph** assigns a value to each edge.
+A **weighted graph** assigns a value to an edge.
 
 ```text
-A --5-- B
+             5 km
+      (A) ----------- (B)
 ```
 
-The value 5 might mean five kilometres, five minutes, or a cost of five units. The meaning depends on the application.
+The weight `5 km` represents the distance between A and B.
 
-**Common use:** GPS routes, delivery planning, transportation costs, and network latency.
+A weighted graph can also represent cost or travel time. Always define what the weight means.
 
 ### 3.4 Unweighted graph
 
-An **unweighted graph** treats every edge as an ordinary connection without a stored cost.
+An **unweighted graph** records connections without assigning costs.
 
-**Common use:** Finding the fewest connections between two users in a social network.
+```text
+(A) -------- (B) -------- (C)
+```
+
+Each edge represents a connection. If finding the fewest number of edges is the goal, BFS can find a shortest path in an unweighted graph.
 
 ### 3.5 Connected and disconnected graphs
 
-In an undirected graph, a graph is **connected** if every vertex can be reached from every other vertex. Otherwise, it is **disconnected**.
+A connected undirected graph has a path between every pair of vertices.
 
-A graph can contain separate groups of vertices with no path between them. Each fully connected group is called a **connected component**.
+**Connected:**
+
+```text
+(A)----(B)----(C)----(D)
+```
+
+**Disconnected:**
+
+```text
+(A)----(B)       (C)----(D)
+```
+
+There is no path from A to C in the disconnected example. Each separate connected group is a **connected component**.
 
 ### 3.6 Cyclic and acyclic graphs
 
-A **cycle** is a path that returns to its starting vertex without repeating intermediate vertices.
+A **cycle** is a path that returns to its starting vertex.
 
-- A **cyclic graph** contains at least one cycle.
-- An **acyclic graph** contains no cycles.
-- A **directed acyclic graph (DAG)** is a directed graph with no directed cycles.
+**Cyclic graph:**
 
-**Common use:** A DAG can represent tasks that must be completed in a particular order, such as course prerequisites or software build dependencies.
+```text
+       (A)
+      /   \
+    (B)---(C)
+```
+
+One cycle is A → B → C → A (the arrows here simply describe the sequence around the undirected cycle).
+
+**Acyclic example:**
+
+```text
+(A)----(B)----(C)----(D)
+```
+
+This example has no cycle.
+
+A **directed acyclic graph (DAG)** is a directed graph with no directed cycles. DAGs can represent task dependencies and course prerequisites.
+
+### 3.7 Complete graph
+
+A **complete graph** has an edge between every pair of distinct vertices.
+
+```text
+       (A)
+      / | \
+     /  |  \
+   (B)---+--(C)
+     \       /
+      \     /
+       (D)
+```
+
+In a complete graph, every vertex is directly connected to all other vertices. The drawing is only illustrative; every pair must have an edge.
+
+**Example:** A small model in which every participant has a direct connection to every other participant.
 
 ---
 
 ## 4. Graph Representation
 
-Graph representation is the way a program stores vertices and edges in memory. The choice affects memory use and the speed of operations.
+Graph representation describes how a program stores vertices and edges in memory.
 
-Consider this undirected graph:
+We will use this graph for all three representations:
 
 ```text
-A ----- B
-|       |
-|       |
-C ----- D
+       (A)------(B)
+        |        |
+        |        |
+       (C)------(D)
 ```
 
-Its edges are A–B, A–C, B–D, and C–D.
+Edges: A–B, A–C, B–D, and C–D.
 
 ### 4.1 Adjacency matrix
 
-An **adjacency matrix** is a two-dimensional table. Rows and columns represent vertices.
-
-A cell contains `1` if an edge exists between the two vertices and `0` if it does not. For a weighted graph, a cell may store the weight instead, with a clearly defined value for “no edge.”
-
-For the example:
+An **adjacency matrix** is a two-dimensional table. Rows and columns represent vertices. In a simple unweighted graph, `1` means an edge exists and `0` means it does not.
 
 | Vertex | A | B | C | D |
 |---|---:|---:|---:|---:|
@@ -166,29 +200,29 @@ For the example:
 | C | 1 | 0 | 0 | 1 |
 | D | 0 | 1 | 1 | 0 |
 
+#### How to read the matrix
+
+- Row A, column B is `1`, so A connects to B.
+- Row A, column D is `0`, so A does not directly connect to D.
+- Because this graph is undirected, the matrix is symmetrical: `[A][B]` equals `[B][A]`.
+
 #### Procedure: Build an adjacency matrix
 
-1. List every vertex in a fixed order: A, B, C, D.
-2. Create a square matrix with one row and one column per vertex.
-3. Initialize every cell to `0` (or the chosen “no edge” value).
-4. For every edge, set the corresponding cell or cells.
-5. For an undirected edge A–B, set both matrix entries `[A][B]` and `[B][A]`.
-6. For a directed edge A → B, set `[A][B]`; do not set `[B][A]` unless a reverse edge also exists.
-7. For a weighted graph, store the edge's weight rather than simply `1`.
+1. List the vertices in a fixed order: A, B, C, D.
+2. Create a square matrix with one row and column for each vertex.
+3. Initialize all cells to `0`.
+4. Read every edge.
+5. For an undirected edge A–B, set both `[A][B]` and `[B][A]` to `1`.
+6. For a directed edge A → B, set only `[A][B]` to `1`.
+7. For a weighted graph, store the weight and use a clearly defined way to represent missing edges.
 
-**Advantages**
-- Checking whether an edge exists is very fast: typically **O(1)**.
-- The structure is straightforward for dense graphs (graphs with many edges).
+**Advantages:** Edge checks are typically O(1); suitable for dense graphs.
 
-**Disadvantages**
-- It uses **O(V²)** space, even when few edges exist.
-- Listing all neighbours of a vertex takes **O(V)** time.
+**Disadvantages:** Uses O(V²) memory, including when there are few edges.
 
 ### 4.2 Adjacency list
 
-An **adjacency list** stores each vertex together with the vertices directly connected to it.
-
-For the same undirected graph:
+An **adjacency list** stores each vertex and the vertices directly connected to it.
 
 ```text
 A: B, C
@@ -197,27 +231,28 @@ C: A, D
 D: B, C
 ```
 
+#### How to read the list
+
+- `A: B, C` means A is directly connected to B and C.
+- `D: B, C` means D is directly connected to B and C.
+- In an undirected graph, each edge appears in both endpoints' lists.
+
 #### Procedure: Build an adjacency list
 
-1. Create an empty neighbour list for every vertex.
-2. Read each edge one at a time.
+1. Create an empty list for every vertex.
+2. Read each edge.
 3. For an undirected edge A–B, add B to A's list and A to B's list.
 4. For a directed edge A → B, add B to A's list only.
-5. For a weighted graph, store both the neighbour and the edge weight.
-6. When adding an edge, decide whether duplicate edges are allowed. If not, check for an existing edge before inserting it.
+5. For a weighted graph, store each neighbour with its weight.
+6. Check for existing edges before insertion if duplicate edges are not allowed.
 
-**Advantages**
-- Usually uses **O(V + E)** space.
-- Efficient for sparse graphs (graphs with relatively few edges).
-- Traversal can visit only the actual neighbours.
+**Advantages:** Usually O(V + E) space; efficient for sparse graphs and traversal.
 
-**Disadvantages**
-- Checking whether a particular edge exists may take time proportional to the degree of a vertex.
-- An adjacency list can be less convenient than a matrix when the graph is dense.
+**Disadvantages:** Checking whether a particular edge exists may require searching a neighbour list.
 
 ### 4.3 Edge list
 
-An **edge list** stores the edges as pairs or triples.
+An **edge list** stores each connection as a pair of vertices.
 
 ```text
 (A, B)
@@ -226,168 +261,255 @@ An **edge list** stores the edges as pairs or triples.
 (C, D)
 ```
 
-For a weighted graph, an edge might be stored as `(A, B, 5)`.
+For a weighted graph:
+
+```text
+(A, B, 5)
+(A, C, 8)
+```
 
 #### Procedure: Build an edge list
 
-1. Store or identify the vertices.
-2. Read every connection.
+1. Identify the vertices.
+2. Read each connection.
 3. Record each edge as `(source, destination)`.
-4. For a weighted graph, include the weight: `(source, destination, weight)`.
-5. If the graph is undirected, define whether each edge is stored once or twice. Storing it once is common, provided the rest of the program treats it as undirected.
+4. Add the weight when needed.
+5. For an undirected graph, decide whether each edge is stored once or twice. Storing it once is common when the program treats it as undirected.
 
-**Advantages**
-- Simple and compact: **O(E)** space for the edges, plus any separate vertex storage.
-- Useful for processing or sorting edges, such as in minimum spanning tree algorithms.
+**Advantages:** Simple and useful for algorithms that process or sort edges.
 
-**Disadvantages**
-- Finding all neighbours of one vertex may require scanning the entire edge list.
-- Checking whether a specific edge exists is generally slower than in an adjacency matrix.
+**Disadvantages:** Finding all neighbours of a vertex may require scanning the entire edge list.
 
 ### 4.4 Representation comparison
 
-| Representation | Typical space | Best suited for | Main trade-off |
-|---|---|---|---|
-| Adjacency matrix | O(V²) | Dense graphs; frequent edge checks | Uses more memory for sparse graphs |
-| Adjacency list | O(V + E) | Sparse graphs; traversals | Edge checks may require searching a neighbour list |
-| Edge list | O(V + E) including vertices | Edge-oriented processing | Neighbour lookup may require scanning edges |
+| Representation | Typical space | Best suited for |
+|---|---|---|
+| Adjacency matrix | O(V²) | Dense graphs and frequent edge checks |
+| Adjacency list | O(V + E) | Sparse graphs and traversal |
+| Edge list | O(V + E), including vertex storage | Edge-oriented processing |
 
-Here, **V** is the number of vertices and **E** is the number of edges.
+`V` is the number of vertices and `E` is the number of edges.
 
 ---
 
 ## 5. Graph Traversal
 
-**Graph traversal** means visiting vertices in a systematic order. Two fundamental traversal techniques are Breadth-First Search and Depth-First Search.
+**Graph traversal** means visiting vertices in a systematic order.
 
-A traversal must keep track of visited vertices. Without this, a graph containing a cycle could cause the algorithm to revisit vertices indefinitely.
+The two fundamental techniques are:
 
-Use the following undirected graph for the examples:
+- **BFS:** Uses a queue and explores level by level.
+- **DFS:** Uses a stack or recursion and explores deeply before backtracking.
+
+A visited set prevents the algorithm from repeatedly visiting vertices in cycles.
+
+Use this graph for the traversal illustrations:
 
 ```text
-       A
-      / \
-     B   C
-     |   |
-     D---E
+       (A)
+       / \
+     (B) (C)
+      |    |
+     (D)---(E)
 ```
 
-Edges: A–B, A–C, B–D, C–E, and D–E.
+Edges: A–B, A–C, B–D, C–E, D–E.
 
-The exact traversal order can depend on the order in which neighbours are stored. For the examples below, process neighbours alphabetically.
+For predictable examples, process neighbours alphabetically.
 
 ### 5.1 Breadth-First Search (BFS)
 
-**Breadth-First Search** visits vertices in layers: first the starting vertex, then its immediate neighbours, then vertices two edges away, and so on.
+BFS visits the starting vertex, then its immediate neighbours, then vertices farther away.
 
-BFS uses a **queue**, which follows FIFO: *First In, First Out*.
+A **queue** follows FIFO: First In, First Out.
 
-**Typical use:** Finding the path with the fewest edges in an unweighted graph.
-
-#### Procedure: Perform BFS
+#### Procedure: BFS
 
 1. Choose a starting vertex.
-2. Create an empty queue and an empty visited set.
-3. Mark the starting vertex as visited.
-4. Enqueue the starting vertex.
+2. Create an empty queue and visited set.
+3. Mark the start as visited.
+4. Enqueue the start.
 5. While the queue is not empty:
    - Dequeue the front vertex and process it.
-   - Examine each of its neighbours.
-   - If a neighbour has not been visited, mark it visited immediately and enqueue it.
-6. Stop when the queue becomes empty, or stop earlier if the task is to find a particular target and the algorithm has reached it.
+   - Examine its neighbours.
+   - Mark each unvisited neighbour as visited and enqueue it.
+6. Stop when the queue is empty, or when a target is reached if the task allows early stopping.
 
-**Example: BFS starting at A**
+#### Illustration: BFS from A
 
-1. Visit A; enqueue B and C.
-2. Dequeue B; visit D and enqueue it.
-3. Dequeue C; visit E and enqueue it.
-4. Dequeue D; E is already visited.
-5. Dequeue E; its neighbours are already visited.
+Initial state:
+
+```text
+Queue:   [A]
+Visited: {A}
+Output:  (empty)
+```
+
+**Step 1 — Remove A**
+
+A's neighbours are B and C.
+
+```text
+Queue:   [B, C]
+Visited: {A, B, C}
+Output:  A
+```
+
+**Step 2 — Remove B**
+
+B's neighbours are A and D. A is already visited, so add D.
+
+```text
+Queue:   [C, D]
+Visited: {A, B, C, D}
+Output:  A, B
+```
+
+**Step 3 — Remove C**
+
+C's neighbours are A and E. A is visited, so add E.
+
+```text
+Queue:   [D, E]
+Visited: {A, B, C, D, E}
+Output:  A, B, C
+```
+
+**Step 4 — Remove D**
+
+D's neighbours B and E have already been visited.
+
+```text
+Queue:   [E]
+Output:  A, B, C, D
+```
+
+**Step 5 — Remove E**
+
+All of E's neighbours are already visited.
+
+```text
+Queue:   []
+Output:  A, B, C, D, E
+```
 
 **BFS order:** `A, B, C, D, E`
 
-**Important:** Mark a vertex visited when it is enqueued, not only when it is dequeued. This prevents the same vertex from being added to the queue multiple times.
+**Important rule:** Mark a vertex visited when it is enqueued, not when it is dequeued. This avoids adding the same vertex to the queue multiple times.
 
-**Complexity with an adjacency list:** O(V + E).
+**Time complexity with an adjacency list:** O(V + E).
 
 ### 5.2 Depth-First Search (DFS)
 
-**Depth-First Search** explores one branch as far as possible before returning (backtracking) to explore another branch.
+DFS follows one branch as far as possible before backtracking.
 
-DFS can be implemented with **recursion** (the function calls itself) or with an explicit **stack**. A stack follows LIFO: *Last In, First Out*.
+A **stack** follows LIFO: Last In, First Out. Recursive DFS uses the programming language's call stack.
 
-**Typical use:** Exploring connected components, detecting cycles, maze exploration, and analysing dependencies.
-
-#### Procedure: Perform DFS recursively
+#### Procedure: Recursive DFS
 
 1. Choose a starting vertex.
 2. Create an empty visited set.
-3. Mark the current vertex as visited and process it.
-4. Examine each neighbour in the chosen order.
-5. For each unvisited neighbour, call DFS on that neighbour.
-6. When a vertex has no unvisited neighbours, return to the previous call. This is backtracking.
+3. Mark the current vertex visited and process it.
+4. Examine its neighbours in a defined order.
+5. Recursively visit each unvisited neighbour.
+6. If no unvisited neighbours remain, return to the previous call.
 7. Continue until all vertices reachable from the start have been visited.
 
-**Example: DFS starting at A**, processing neighbours alphabetically:
+#### Illustration: DFS from A
+
+With neighbours processed alphabetically:
+
+```text
+Start at A
+   |
+   v
+   A
+   |
+   v
+   B
+   |
+   v
+   D
+   |
+   v
+   E
+   |
+   v
+   C
+```
+
+The actual graph connections still determine which move is legal. DFS does not move from E to C unless that edge exists; in this example, E–C is an edge.
+
+Traversal order:
+
+```text
+A, B, D, E, C
+```
+
+**Backtracking example:**
 
 1. Visit A.
-2. Visit B.
-3. Visit D.
-4. Visit E.
-5. Visit C.
-6. Backtrack when no unvisited neighbours remain.
+2. Follow A–B.
+3. Follow B–D.
+4. Follow D–E.
+5. Follow E–C.
+6. C has no unvisited neighbours, so return through the previous calls until the search is complete.
 
-**DFS order:** `A, B, D, E, C`
+**Time complexity with an adjacency list:** O(V + E).
 
-Another neighbour order may produce a different valid DFS order.
-
-**Complexity with an adjacency list:** O(V + E).
-
-### BFS and DFS comparison
+### 5.3 BFS and DFS compared
 
 | Feature | BFS | DFS |
 |---|---|---|
-| Main structure | Queue | Stack or recursion |
-| Exploration | Level by level | Deep along one branch, then backtracks |
-| Fewest edges in an unweighted graph | Finds such a path | Does not guarantee it |
-| Common uses | Shortest unweighted paths, levels, reachability | Cycle detection, components, maze exploration |
+| Data structure | Queue | Stack or recursion |
+| Search strategy | Level by level | Deep branch, then backtracking |
+| Fewest-edge path in an unweighted graph | Yes | Not guaranteed |
+| Common uses | Reachability and shortest unweighted paths | Cycle detection, maze exploration, components |
 | Complexity with adjacency list | O(V + E) | O(V + E) |
 
-### What if the graph is disconnected?
+### 5.4 Traversing a disconnected graph
 
-Starting BFS or DFS at one vertex visits only the vertices reachable from that start. To traverse every vertex in a disconnected graph:
+A search from one vertex does not necessarily visit every vertex in a disconnected graph.
 
-1. Mark all vertices as unvisited.
-2. Loop through every vertex.
-3. Whenever a vertex is still unvisited, start a new BFS or DFS from it.
-4. Each new search explores another connected component.
+```text
+(A)----(B)       (C)----(D)       (E)
+```
 
-For a directed graph, reachability follows edge directions. Connected-component terminology must be chosen carefully because directed graphs have different notions, including strongly connected components.
+There are three components: `{A, B}`, `{C, D}`, and `{E}`.
+
+Procedure:
+
+1. Mark every vertex unvisited.
+2. Loop through all vertices.
+3. If a vertex is unvisited, start a new BFS or DFS from it.
+4. Repeat until all vertices have been visited.
 
 ---
 
-## 6. Example Implementation in Java
+## 6. Java Implementation: Adjacency List, BFS, and DFS
 
-The following example uses an **adjacency list** and demonstrates adding undirected edges, BFS, and DFS. It uses letters for vertex names and processes neighbours in insertion order.
+This example uses an undirected, unweighted graph. It demonstrates how the graph is stored and traversed.
 
 ```java
 import java.util.*;
 
 public class Graph {
-    // Each vertex maps to a list of its neighbouring vertices.
-    private final Map<String, List<String>> adjacencyList = new LinkedHashMap<>();
+
+    // Each vertex maps to a list of its neighbours.
+    private final Map<String, List<String>> adjacencyList =
+            new LinkedHashMap<>();
 
     // Add a vertex if it does not already exist.
     public void addVertex(String vertex) {
         adjacencyList.putIfAbsent(vertex, new ArrayList<>());
     }
 
-    // Add an undirected edge between two vertices.
+    // Add an undirected edge.
     public void addEdge(String source, String destination) {
         addVertex(source);
         addVertex(destination);
 
-        // Add both directions because this is an undirected graph.
+        // An undirected edge must be stored in both directions.
         if (!adjacencyList.get(source).contains(destination)) {
             adjacencyList.get(source).add(destination);
         }
@@ -416,7 +538,8 @@ public class Graph {
 
             for (String neighbour : adjacencyList.get(current)) {
                 if (!visited.contains(neighbour)) {
-                    visited.add(neighbour); // Mark when enqueued.
+                    // Mark immediately when enqueued.
+                    visited.add(neighbour);
                     queue.offer(neighbour);
                 }
             }
@@ -466,24 +589,25 @@ public class Graph {
 }
 ```
 
-### Expected output
+Expected output:
 
 ```text
 BFS: A B C D E
 DFS: A B D E C
 ```
 
-### Understanding the implementation
+### Reading the code step by step
 
-- `Map<String, List<String>>` stores each vertex and its neighbours.
-- `addVertex()` ensures a vertex exists before its edges are added.
-- `addEdge()` adds both directions because this example is undirected.
-- `Queue` supports BFS's first-in, first-out processing.
-- `Set` records visited vertices and prevents repeated processing.
-- `dfsRecursive()` follows one branch and then backtracks.
-- `LinkedHashMap` and the neighbour lists preserve insertion order, making this example's output predictable.
+1. `adjacencyList` stores each vertex and its neighbours.
+2. `addVertex()` creates a vertex only if it is not already present.
+3. `addEdge()` creates an undirected connection in both lists.
+4. `bfs()` uses a queue to process vertices in arrival order.
+5. `dfs()` creates a visited set and calls the recursive helper.
+6. `dfsRecursive()` follows an unvisited neighbour until it must backtrack.
 
-**Note:** This implementation is for an undirected, unweighted graph. A directed graph should add only the source-to-destination connection. A weighted graph must store edge weights as well. Recursive DFS can also use significant call-stack space on a very deep graph; an explicit stack is an alternative.
+`LinkedHashMap` preserves vertex insertion order, and each neighbour list preserves insertion order. This makes the example's output reproducible.
+
+For a directed graph, change `addEdge()` so it adds only the destination to the source's list. For a weighted graph, store a neighbour together with its weight.
 
 ---
 
@@ -491,131 +615,156 @@ DFS: A B D E C
 
 ### 7.1 GPS and route planning
 
-**Vertices:** Places, intersections, or landmarks.  
-**Edges:** Roads connecting those places.  
-**Weights:** Distance, travel time, toll, or cost.
-
-**Procedure for a simple route problem:**
-
-1. Represent each location as a vertex.
-2. Add an edge for each permitted road.
-3. Store a weight if roads have different costs or travel times.
-4. Choose the starting location and destination.
-5. Use BFS for the fewest edges when the graph is unweighted.
-6. Use an appropriate weighted shortest-path algorithm, such as Dijkstra's algorithm for non-negative edge weights, when minimising distance or cost.
-7. Reconstruct and display the route.
-
-**Important:** BFS does not generally find the shortest-distance route in a weighted road network.
-
-### 7.2 Social networks
-
-**Vertices:** People or accounts.  
-**Edges:** Friendships, follows, or other relationships.
-
-**Example procedure:**
-
-1. Create a vertex for each user.
-2. Add edges to represent relationships.
-3. Use BFS to discover users within a certain number of connections.
-4. Use graph analysis to explore mutual connections or communities.
-
-For a directed “follows” network, A following B does not automatically mean B follows A.
-
-### 7.3 Computer networks
-
-**Vertices:** Computers, routers, switches, or servers.  
-**Edges:** Communication links.  
-**Weights:** Delay, bandwidth-related cost, or link cost.
-
-Graphs can help model connectivity, find routes, and identify links whose failure may separate parts of a network.
-
-### 7.4 Course prerequisites and task scheduling
-
-**Vertices:** Courses or tasks.  
-**Directed edges:** A prerequisite or dependency.
-
-For example, if Programming Fundamentals must be completed before Data Structures, add an edge:
-
 ```text
-Programming Fundamentals ---> Data Structures
+       4 km
+ (A)----------(B)
+  |             |
+  | 2 km        | 3 km
+  |             |
+ (C)----------(D)
+       5 km
 ```
+
+Vertices represent locations; edges represent roads; weights represent distances.
 
 **Procedure:**
 
-1. Create a vertex for each course or task.
-2. Draw a directed edge from each prerequisite to the task that depends on it.
-3. Check for cycles. A cycle may indicate impossible prerequisites or circular dependencies.
-4. If the graph is a DAG, use a topological ordering to find an order that respects the dependencies.
+1. Create a vertex for each location.
+2. Add edges for roads that can be used.
+3. Store the distance or cost on each edge.
+4. Select a starting point and destination.
+5. Use a suitable shortest-path algorithm.
+6. Reconstruct and display the selected route.
 
-### 7.5 Recommendation systems
+BFS finds a path with the fewest edges in an unweighted graph. It does not generally find the minimum-distance route in a weighted graph. Dijkstra's algorithm is suitable for non-negative edge weights.
 
-**Vertices:** Users and items, such as movies or products.  
-**Edges:** Interactions, such as a user rating or purchasing an item.
+### 7.2 Social networks
 
-A recommendation system can examine shared connections to identify items that may interest a user. Real systems may use additional data and more advanced algorithms.
+```text
+        (Ana)
+        /   \
+    (Ben)---(Cara)
+       \
+       (Dan)
+```
 
-### 7.6 Delivery and logistics
+Vertices represent users and edges represent relationships. If the relationship is mutual, use an undirected graph. If it means “follows,” use a directed graph.
 
-**Vertices:** Warehouses, stores, customers, or delivery points.  
-**Edges:** Available travel links.  
-**Weights:** Distance, delivery time, or cost.
+Applications include finding mutual connections, discovering reachable users, and identifying communities.
 
-Graphs help compare routes and model connections between locations. Finding the best route for multiple deliveries may require more advanced optimisation than a single shortest-path search.
+### 7.3 Computer networks
 
-### 7.7 Web pages and hyperlinks
+```text
+(PC-1)----(Router)----(Server)
+              |
+           (PC-2)
+```
 
-**Vertices:** Web pages.  
-**Directed edges:** Links from one page to another.
+Vertices represent computers, routers, or servers. Edges represent communication links. Weights may represent delay or link cost.
 
-Search engines can model the web as a directed graph and analyse links to help understand relationships among pages.
+Graphs can help model network connectivity and determine possible communication paths.
+
+### 7.4 Course prerequisites
+
+```text
+(Programming Basics)
+          |
+          v
+    (Data Structures)
+          |
+          v
+      (Algorithms)
+```
+
+Vertices represent courses; directed edges indicate prerequisite relationships.
+
+Procedure:
+
+1. Create a vertex for each course.
+2. Draw an arrow from a prerequisite to the dependent course.
+3. Check for directed cycles.
+4. If the graph is a DAG, use topological sorting to determine a valid order.
+
+### 7.5 Delivery and logistics
+
+```text
+(Warehouse)----(Store A)
+      |             |
+      |             |
+   (Store B)----(Store C)
+```
+
+Vertices represent warehouses and delivery locations. Edges represent available routes, and weights may represent travel time or cost.
+
+Graphs can help compare routes and identify connections between locations. Planning the best order for many deliveries can require more advanced optimisation.
+
+### 7.6 Web pages and hyperlinks
+
+```text
+(Page A) -----> (Page B)
+    |               |
+    v               v
+(Page C) -----> (Page D)
+```
+
+Vertices represent web pages. Directed edges represent hyperlinks from one page to another. Graph analysis can help describe relationships between pages.
+
+### 7.7 Recommendation systems
+
+A graph can connect users to products they interacted with.
+
+```text
+(User A) ---- (Movie 1)
+    |               |
+    |               |
+(Movie 2) ---- (User B)
+```
+
+A system can analyse shared interactions to suggest products or content. Real recommendation systems may also use ratings, user attributes, and machine-learning models.
 
 ---
 
 ## 8. Rules for Implementing Graphs
 
-Follow these rules when designing and coding a graph.
-
-1. **Define what a vertex represents.** Every vertex should have a clear meaning, such as a campus building or a user.
-2. **Choose the graph type first.** Decide whether it is directed or undirected, and weighted or unweighted.
-3. **Choose a suitable representation.** Use an adjacency list for many sparse graphs, an adjacency matrix for dense graphs or frequent edge-existence checks, and an edge list for edge-oriented processing.
-4. **Use stable vertex identifiers.** Each vertex should have a unique identifier or a clearly defined mapping from identifiers to indices.
-5. **Validate vertices and edges.** Decide whether adding an edge automatically creates missing vertices or rejects the operation, and apply that rule consistently.
-6. **Respect edge direction.** For an undirected edge, store both directions in an adjacency list. For a directed edge, store only the specified direction.
-7. **Store weights consistently.** Define what a weight means and how a missing edge is represented. Do not confuse a valid weight such as `0` with “no edge.”
-8. **Prevent unwanted duplicate edges.** Decide whether parallel edges are allowed. If they are not, check before adding an edge.
-9. **Handle self-loops deliberately.** Decide whether a vertex may connect to itself and validate edge additions accordingly.
-10. **Track visited vertices during traversal.** Mark each vertex at the appropriate time so cycles do not cause endless traversal.
-11. **Use the correct structure for each traversal.** BFS uses a queue; iterative DFS uses a stack, while recursive DFS uses the call stack.
-12. **Understand traversal scope.** BFS or DFS from one starting vertex does not necessarily visit a disconnected graph's other components.
-13. **Do not assume traversal order is universal.** The order depends on how neighbours are stored or sorted.
-14. **Choose algorithms based on the problem.** BFS can find a fewest-edge path in an unweighted graph; weighted shortest paths require an appropriate weighted algorithm.
-15. **Consider memory and performance.** Estimate the number of vertices and edges before selecting a representation.
-16. **Test boundary cases.** Test an empty graph, a single vertex, a graph with no edges, a cycle, a disconnected graph, and invalid vertex input.
-17. **Keep the implementation consistent.** Use the same vertex identifiers, edge rules, and weight conventions throughout the program.
-18. **Document assumptions.** Explain whether edges are directed, whether duplicates are allowed, and what edge weights mean.
+1. **Define every vertex.** Each vertex must have a clear meaning.
+2. **Choose the graph type first.** Decide whether it is directed or undirected, weighted or unweighted.
+3. **Choose the representation based on needs.** Consider graph density, memory use, and the operations performed most often.
+4. **Use unique vertex identifiers.** Avoid ambiguous identifiers.
+5. **Validate vertices and edges.** Decide how the program handles unknown vertices.
+6. **Respect direction.** Undirected adjacency lists store both directions; directed lists store only the specified direction.
+7. **Store weights consistently.** Clearly define units and how missing edges are represented.
+8. **Decide how duplicates are handled.** Prevent duplicate edges if the graph does not permit them.
+9. **Decide whether self-loops are allowed.** Handle edges from a vertex to itself deliberately.
+10. **Track visited vertices.** Use a visited set or array in traversal algorithms.
+11. **Use the correct data structure.** BFS requires a queue; iterative DFS uses a stack.
+12. **Handle disconnected graphs.** Start new searches from remaining unvisited vertices when every component must be processed.
+13. **Do not assume traversal order is universal.** It depends on neighbour ordering.
+14. **Choose the algorithm for the actual goal.** Use BFS for fewest-edge paths in unweighted graphs; use a weighted shortest-path algorithm for weighted costs.
+15. **Consider complexity.** Estimate the number of vertices and edges before choosing a representation.
+16. **Test boundary cases.** Include an empty graph, isolated vertices, cycles, disconnected graphs, and invalid input.
+17. **Maintain consistency.** Apply the same vertex, edge, and weight rules throughout the implementation.
+18. **Document assumptions.** Explain whether duplicate edges, self-loops, and zero-weight edges are permitted.
 
 ---
 
-## 9. Common Mistakes and How to Avoid Them
+## 9. Common Mistakes
 
 | Mistake | Why it is a problem | Correct approach |
 |---|---|---|
-| Forgetting the reverse edge in an undirected adjacency list | The connection appears to work in only one direction | Add both neighbour entries |
-| Adding a reverse edge to every directed edge | It changes the meaning of the graph | Add only the specified direction |
-| Not using a visited set | Cycles can cause repeated visits or endless processing | Track visited vertices |
-| Marking BFS vertices visited too late | A vertex may enter the queue multiple times | Mark it when enqueued |
-| Using BFS for weighted shortest distance | Fewest edges may not mean lowest cost | Use a suitable weighted shortest-path algorithm |
-| Assuming every vertex is reachable | Some graphs are disconnected | Start additional searches from unvisited vertices |
-| Treating `0` as “no edge” in every weighted matrix | A valid zero-weight edge may be lost | Use a separate presence marker or a safe sentinel |
-| Ignoring graph size | A matrix may waste memory on a large sparse graph | Compare expected vertices and edges before choosing a representation |
+| Forgetting the reverse edge in an undirected adjacency list | The edge behaves like a one-way connection | Add both neighbour entries |
+| Adding reverse edges to every directed edge | Changes the intended graph | Store only the specified direction |
+| Not tracking visited vertices | May cause repeated processing or endless traversal | Use a visited set |
+| Marking BFS vertices visited too late | A vertex can be enqueued multiple times | Mark it when enqueued |
+| Using BFS to minimize weighted distance | Fewest edges may not be lowest cost | Use a suitable weighted algorithm |
+| Assuming every vertex is reachable | The graph may be disconnected | Start additional searches |
+| Using zero to mean “no edge” in every weighted matrix | A real zero-weight edge may be lost | Store edge presence separately |
+| Choosing a matrix without considering graph density | Memory may be wasted | Compare expected V and E |
 
 ---
 
-## 10. Suggested Classroom Activity
+## 10. Classroom Activity: Campus Navigation
 
-### Scenario: Campus Navigation Network
-
-A campus has five locations:
+A campus contains five locations:
 
 - A — Gate
 - B — Registrar
@@ -633,49 +782,63 @@ C-D
 D-E
 ```
 
-### Tasks
+### Student Tasks
 
-1. List the vertices and edges.
-2. Draw the graph.
-3. Construct its adjacency matrix.
-4. Construct its adjacency list.
-5. Starting from A, perform BFS and record the order.
-6. Starting from A, perform DFS and record the order. State the neighbour order you used.
-7. Explain what changes if the path from B to D becomes a one-way path from B to D.
-8. Suppose each edge has a distance. Explain why BFS alone may not find the route with the shortest total distance.
-9. Modify the Java program to include E and the edge D–E.
-10. Test the program with a starting vertex that does not exist and explain how the program responds.
+1. Draw the graph.
+2. Identify its vertices and edges.
+3. Construct an adjacency matrix.
+4. Construct an adjacency list.
+5. Perform BFS starting from A and show the queue after each step.
+6. Perform DFS starting from A and show when backtracking occurs.
+7. Change edge B–D to a directed edge B → D. Explain how the adjacency list changes.
+8. Assign different distances to the edges. Explain why BFS alone cannot guarantee the shortest total distance.
+9. Modify the Java program to include all five locations.
+10. Test the program with a nonexistent starting vertex.
 
-### Suggested answers for checking
+### Suggested Answers
 
-Using alphabetical neighbour order and the edges listed above:
+Vertices:
 
-- **Vertices:** `{A, B, C, D, E}`
-- **Edges:** `{(A,B), (A,C), (B,D), (C,D), (D,E)}`
-- **Adjacency list:**
-  ```text
-  A: B, C
-  B: A, D
-  C: A, D
-  D: B, C, E
-  E: D
-  ```
-- **BFS from A:** `A, B, C, D, E`
-- **DFS from A:** `A, B, D, C, E` when neighbours are processed alphabetically and DFS recursively follows the first unvisited neighbour.
+```text
+{A, B, C, D, E}
+```
 
-Traversal orders can differ if the neighbour order differs, while still being valid.
+Adjacency list:
+
+```text
+A: B, C
+B: A, D
+C: A, D
+D: B, C, E
+E: D
+```
+
+BFS from A, using alphabetical neighbour order:
+
+```text
+A, B, C, D, E
+```
+
+DFS from A, using alphabetical neighbour order:
+
+```text
+A, B, D, C, E
+```
+
+Traversal orders may differ when neighbour ordering differs. Students should explain the process, not only write the final order.
 
 ---
 
-## 11. Summary
+## 11. Final Summary
 
-A graph is a data structure for modelling objects and their relationships. Its vertices represent the objects, and its edges represent connections. Edges may be directed or undirected and may carry weights.
+A graph models relationships between objects through vertices and edges. An edge may be directed or undirected, and it may have a weight.
 
-- **Adjacency matrix:** Good for dense graphs and fast edge checks.
-- **Adjacency list:** Commonly suitable for sparse graphs and traversal.
-- **Edge list:** Simple representation for processing edges.
-- **BFS:** Uses a queue and explores level by level; it finds fewest-edge paths in unweighted graphs.
-- **DFS:** Uses a stack or recursion and explores deeply before backtracking.
-- **Applications:** Route planning, social networks, computer networks, scheduling, recommendations, logistics, and web links.
+- **Adjacency matrix:** Uses a two-dimensional table.
+- **Adjacency list:** Stores each vertex's neighbours.
+- **Edge list:** Stores the connections directly.
+- **BFS:** Uses a queue to explore level by level.
+- **DFS:** Uses a stack or recursion to explore deeply and backtrack.
 
-The most important implementation habit is to define the graph's rules before writing code. Decide what vertices and edges mean, select the correct representation, handle direction and weights consistently, and use visited tracking during traversal.
+Graphs are used in GPS navigation, social networks, computer networks, course scheduling, delivery systems, recommendations, and web analysis.
+
+**Implementation principle:** Before writing code, decide what the vertices and edges mean, choose an appropriate representation, define the rules for direction and weights, and use visited tracking during traversal.
